@@ -116,7 +116,6 @@ select{padding:14px 13px;border:1px solid var(--line-2);border-radius:12px;backg
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
   display:flex;flex-direction:column;overflow:hidden;transition:border-color .18s,transform .18s}
 .card:hover{border-color:var(--violet);transform:translateY(-2px)}
-.card.urg{border-color:var(--orange-deep)}
 .stripe{display:none}
 .cbody{padding:22px 24px 24px;display:flex;flex-direction:column;gap:14px;flex:1}
 .kicker{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;font-weight:700;
