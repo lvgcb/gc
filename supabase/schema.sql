@@ -1,4 +1,4 @@
--- Run once in the Supabase SQL Editor, then run seed.sql.
+-- Run once in the Supabase SQL Editor, then import catalog_items.csv in Table Editor.
 create table if not exists public.catalog_admins (
   email text primary key
 );

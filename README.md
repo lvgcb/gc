@@ -13,7 +13,7 @@ npm run build
 ## One-time Supabase setup
 
 1. Create a Supabase project.
-2. Run [schema.sql](supabase/schema.sql), then [seed.sql](supabase/seed.sql) in its SQL Editor. The seed includes all 237 entries and the original encrypted counselor notes.
+2. Run [schema.sql](supabase/schema.sql) in its SQL Editor. Then open **Table Editor → catalog_items → Insert → Import Data from CSV** and upload [catalog_items.csv](supabase/catalog_items.csv). It contains all 237 entries and their encrypted counselor notes.
 3. In **Authentication → Users**, create an account for `akimzhansagatzhan@gmail.com`. The database policy grants edits only to this email.
 4. Copy the project URL and **publishable key** from Supabase into `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in Vercel. Do not use a secret key.
 5. Import this GitHub repository into Vercel. Vercel builds the Vite app with `npm run build` and serves `dist`.
