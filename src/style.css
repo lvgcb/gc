@@ -94,6 +94,7 @@ select{padding:14px 13px;border:1px solid var(--line-2);border-radius:12px;backg
 .afc button{border:0;background:none;color:inherit;cursor:pointer;font-size:16px;line-height:1;opacity:.55;padding:0 2px}
 .afc button:hover{opacity:1}
 .fhint{font-size:13px;color:var(--ink-2);margin:16px 0 0;max-width:86ch;line-height:1.5}
+.mobile-hint{display:none}
 #totop{position:fixed;right:22px;bottom:22px;z-index:60;width:48px;height:48px;border-radius:50%;
   border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);cursor:pointer;
   display:none;align-items:center;justify-content:center;transition:.16s}
@@ -186,6 +187,8 @@ body.compact .cbody{padding:15px 17px 17px;gap:10px}
 .empty{text-align:center;padding:80px 20px}
 .empty h3{font-size:20px;margin:0 0 8px;font-weight:670}
 .empty p{color:var(--ink-3);margin:0 0 20px}
+.more-wrap{display:flex;justify-content:center;margin:28px 0 0}
+.more-btn{min-height:44px;padding-inline:24px}
 
 /* ---------- edit ---------- */
 .editbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--orange-soft);
@@ -206,9 +209,12 @@ body.editing .card{border-style:dashed}
 .efoot{display:flex;gap:10px;align-items:center;padding:16px 24px;border-top:1px solid var(--line)}
 .efoot .sp{margin-left:auto}
 .fgrp{display:flex;flex-direction:column;gap:5px}
-.fgrp>label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3)}
-.fgrp input[type=text],.fgrp textarea,.fgrp select{width:100%;padding:10px 12px;border:1px solid var(--line-2);
-  border-radius:10px;background:var(--bg);color:var(--ink);font-size:14.5px;outline:none;font-family:inherit}
+.fgrp>label{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3)}
+.farea{min-width:0;margin:0;padding:0;border:0}
+.farea legend{padding:0 0 5px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3)}
+.fgrp input[type=text],.fgrp input[type=date],.fgrp input[type=url],.fgrp textarea,.fgrp select{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--line-2);
+  border-radius:10px;background:var(--bg);color:var(--ink);font-size:14.5px;outline:none;font-family:inherit;
+  font-weight:400;letter-spacing:normal;text-transform:none}
 .fgrp textarea{resize:vertical;min-height:74px;line-height:1.55}
 .fgrp input:focus,.fgrp textarea:focus,.fgrp select:focus{border-color:var(--blue-deep);box-shadow:0 0 0 3px var(--blue-soft)}
 .f2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -241,6 +247,8 @@ body.editing .card{border-style:dashed}
 .mbox input{width:100%;padding:13px 15px;border:1px solid var(--line-2);border-radius:12px;
   background:var(--bg);color:var(--ink);font-size:16px;outline:none}
 .mbox input:focus{border-color:var(--blue-deep);box-shadow:0 0 0 3px var(--blue-soft)}
+.modal-field{display:flex;flex-direction:column;gap:5px;margin-top:12px;font-size:13px;font-weight:650;color:var(--ink-2)}
+.modal-field input{box-sizing:border-box}
 .merr{color:var(--alert);font-size:13.5px;margin:9px 0 0;font-weight:600;display:none}
 .merr.on{display:block}
 .mact{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
@@ -263,7 +271,8 @@ footer .fh{font-size:14.5px;color:var(--ink-3);margin:0 0 16px;max-width:76ch}
   .hero{padding:38px 0 26px}
   .stats{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:22px;margin-top:36px}
   .stat:nth-child(3){padding-left:0;border:0}
-  .grid{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+  .grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))}
+  body.compact .grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
   .pop{min-width:min(78vw,270px)}
   #totop{right:14px;bottom:14px;width:44px;height:44px}
   select{max-width:100%;flex:1;min-width:0}
@@ -275,18 +284,29 @@ footer .fh{font-size:14.5px;color:var(--ink-3);margin:0 0 16px;max-width:76ch}
 }
 @media (max-width:520px){
   .brandbar{padding:14px 0}
-  .langs button{padding:6px 10px;font-size:12px}
+  .langs button{min-height:44px;padding:6px 12px;font-size:12px}
   .hero{padding:30px 0 24px}
   h1{font-size:clamp(36px,10vw,48px)}
   .eyebrow{margin-bottom:16px}
   .checked{margin-top:22px}
-  .stats{gap:18px 12px;margin-top:30px;padding-top:20px}
+  .stats{display:none}
   .stat{padding-left:12px}
   .stat span{font-size:11px}
   .search{min-width:100%}
   .searchrow select{width:100%;max-width:none}
+  #fbtn{display:flex;width:100%;min-height:44px;margin-top:12px;align-items:center;justify-content:center;gap:8px}
+  .fbar{display:none}
+  .fbar.mobile-open{display:flex}
+  .fdrop.open{width:100%}
+  .fdrop.open .pop{position:static;min-width:0;margin-top:6px;box-shadow:none}
+  .fb{min-height:44px}
   .cbody{padding:16px}
   .meta{margin-top:26px}
+  .fhint{display:none}
+  .mobile-hint{display:block;margin-top:12px;color:var(--ink-2);font-size:13px}
+  .mobile-hint summary{cursor:pointer;font-weight:650;min-height:44px;display:list-item;align-content:center}
+  .mobile-hint p{margin:0 0 8px;line-height:1.5}
+  .lockchip,.card .actions .btn{min-height:44px;box-sizing:border-box}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
