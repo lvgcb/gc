@@ -77,6 +77,8 @@ select{padding:14px 13px;border:1px solid var(--line-2);border-radius:12px;backg
 .fb.act{border-color:var(--violet);background:var(--violet-soft);color:var(--violet-ink)}
 .fb .cb{background:var(--violet);color:#FFF;font-size:11.5px;font-weight:800;min-width:19px;height:19px;
   border-radius:10px;display:inline-flex;align-items:center;justify-content:center;padding:0 6px}
+.fb .group-count{font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.fb.act .group-count{color:var(--violet-ink)}
 .fb .car{opacity:.45;font-size:10px;transition:.15s}
 .fdrop.open .fb .car{transform:rotate(180deg);opacity:.8}
 .pop{position:absolute;top:calc(100% + 7px);left:0;z-index:40;background:var(--surface);border:1px solid var(--line-2);
@@ -131,6 +133,7 @@ select{padding:14px 13px;border:1px solid var(--line-2);border-radius:12px;backg
 .pill.lim{background:var(--warn-soft);color:var(--warn)}
 .pill.aid{background:var(--brand-soft);color:var(--brand-ink)}
 .pill.lv-open{background:var(--surface-2);color:var(--ink-3)}
+.pill.group-event{background:var(--violet-soft);color:var(--violet-ink)}
 .pill.lv-selective{background:var(--brand-soft);color:var(--brand-ink)}
 .pill.lv-elite{background:var(--orange-soft);color:var(--orange-ink)}
 .pill.urg{background:var(--alert-soft);color:var(--alert)}

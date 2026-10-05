@@ -1,6 +1,13 @@
 import assert from 'node:assert/strict'
 import { webcrypto } from 'node:crypto'
 import { encryptNote, unlockNotes } from '../src/crypto.js'
+import { isGroupEvent } from '../src/groupEvents.js'
+
+assert.equal(isGroupEvent({ id: 'C012' }), true)
+assert.equal(isGroupEvent({ id: 'C152' }), true)
+assert.equal(isGroupEvent({ id: 'C011' }), false) // solo entry is allowed
+assert.equal(isGroupEvent({ id: 'C154' }), false) // one-person team is allowed
+assert.equal(isGroupEvent({ id: 'C012', groupEvent: false }), false)
 
 const password = 'test-password'
 const salt = webcrypto.getRandomValues(new Uint8Array(16))

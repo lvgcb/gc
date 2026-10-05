@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import translations from './translations.json'
 import { supabase } from './supabase.js'
 import { encryptNote, unlockNotes } from './crypto.js'
+import { isGroupEvent } from './groupEvents.js'
 
 const { T, AREAS } = translations
 const LANGS = ['ru', 'kk', 'en']
@@ -13,6 +14,7 @@ const GROUPS = [
   ['kz', 'access', 'k', [['yes', 'yes'], ['limited', 'limited']]],
   ['lv', 'lvl', 'lv', [['open', 'l_open'], ['selective', 'l_selective'], ['elite', 'l_elite']]],
   ['dl', 'dstat', 'ds', [['date', 'd_date'], ['soon', 'soon'], ['window', 'd_window'], ['external', 'd_external'], ['unpublished', 'd_unpublished'], ['closed', 'd_closed']]],
+  ['group', 'groupEvents', null, [['required', 'groupEvents']]],
 ]
 const FIELDS = [['e', 'descf', true], ['l', 'deadline', true], ['dn', 'dnote'], ['g', 'age'], ['z', 'accessf', true], ['f', 'field'], ['p', 'period'], ['m', 'format'], ['o', 'cost', true], ['i', 'aid', true], ['s', 'sel', true], ['r', 'outcome', true]]
 const SELECTS = {
@@ -40,6 +42,7 @@ function Card({ x, lang, t, note, unlocked, editing, expanded, onToggle, onEdit 
         {x.c !== 'paid' && <span className={`pill ${x.c === 'aid' ? 'aid' : x.c === 'free' ? 'free' : ''}`}>{t(x.c === 'aid' ? 'c_aid' : x.c)}</span>}
         {x.k === 'limited' && <span className="pill lim">{t('limited')}</span>}
         <span className={`pill lv-${x.lv}`}>{t(`l_${x.lv}`)}</span>
+        {isGroupEvent(x) && <span className="pill group-event">{t('groupEvents')}</span>}
         {x.st && lang !== 'ru' && <span className="stale">{t('stale')}</span>}
         {urgent && <span className="pill urg">{d === 0 ? t('today') : `${d} ${t('urgent')}`}</span>}
         {x.ds !== 'date' && <span className={`pill st ${x.ds}`}>{t(`d_${x.ds}`)}</span>}
@@ -204,6 +207,7 @@ export default function App() {
     for (const [group, , field] of GROUPS) {
       if (!filters[group].length) continue
       if (group === 'dl') { const d = days(x.d); if (!filters.dl.some(v => v === x.ds || (v === 'soon' && x.ds === 'date' && d !== null && d >= 0 && d <= 120))) return false }
+      else if (group === 'group') { if (!isGroupEvent(x)) return false }
       else if (Array.isArray(x[field]) ? !x[field].some(v => filters[group].includes(v)) : !filters[group].includes(x[field])) return false
     }
     if (query.trim()) { const L = x[lang] || {}, hay = [x.n, L.e, L.f, L.l, L.o].join(' ').toLowerCase(); if (!query.toLowerCase().trim().split(/\s+/).every(word => hay.includes(word))) return false }
@@ -284,7 +288,7 @@ export default function App() {
       </div>
     </div></header>
     <div className="controls"><div className="wrap"><div className="searchrow"><div className={`search${query ? ' has' : ''}`}><span className="ico">⌕</span><input type="search" aria-label={t('search')} value={query} placeholder={t('search')} onChange={e => setQuery(e.target.value)} /><button className="clr" title={t('clearq')} aria-label={t('clearq')} onClick={() => setQuery('')}>×</button></div><select value={sort} aria-label={t('sort')} onChange={e => setSort(e.target.value)}><option value="d">{t('sortd')}</option><option value="n">{t('sortn')}</option><option value="f">{t('sortf')}</option></select></div>
-      <button id="fbtn" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(value => !value)}>{t('filters')} {Object.values(filters).flat().length > 0 && <b>{Object.values(filters).flat().length}</b>} <span aria-hidden="true">⌄</span></button><div className={`fbar${filtersOpen ? ' mobile-open' : ''}`}>{GROUPS.map(([group, label, field, options]) => <div className={`fdrop${openFilter === group ? ' open' : ''}`} key={group}><button className={`fb${filters[group].length ? ' act' : ''}`} aria-expanded={openFilter === group} onClick={() => setOpenFilter(openFilter === group ? null : group)}>{t(label)} {filters[group].length > 0 && <span className="cb">{filters[group].length}</span>} <span className="car">▼</span></button><div className="pop">{options.map(([value, text]) => <label key={value}><input type="checkbox" checked={filters[group].includes(value)} onChange={() => updateFilter(group, value)} /><span>{text ? t(text) : area(value)}</span><span className="n">{items.filter(x => group === 'dl' && value === 'soon' ? x.ds === 'date' && days(x.d) >= 0 && days(x.d) <= 120 : Array.isArray(x[field]) ? x[field].includes(value) : x[field] === value).length}</span></label>)}</div></div>)}</div>
+      <button id="fbtn" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(value => !value)}>{t('filters')} {Object.values(filters).flat().length > 0 && <b>{Object.values(filters).flat().length}</b>} <span aria-hidden="true">⌄</span></button><div className={`fbar${filtersOpen ? ' mobile-open' : ''}`}>{GROUPS.map(([group, label, field, options]) => group === 'group' ? <button key={group} className={`fb${filters.group.length ? ' act' : ''}`} aria-pressed={!!filters.group.length} onClick={() => updateFilter('group', 'required')}>{t(label)} <span className="group-count">{items.filter(isGroupEvent).length}</span></button> : <div className={`fdrop${openFilter === group ? ' open' : ''}`} key={group}><button className={`fb${filters[group].length ? ' act' : ''}`} aria-expanded={openFilter === group} onClick={() => setOpenFilter(openFilter === group ? null : group)}>{t(label)} {filters[group].length > 0 && <span className="cb">{filters[group].length}</span>} <span className="car">▼</span></button><div className="pop">{options.map(([value, text]) => <label key={value}><input type="checkbox" checked={filters[group].includes(value)} onChange={() => updateFilter(group, value)} /><span>{text ? t(text) : area(value)}</span><span className="n">{items.filter(x => group === 'dl' && value === 'soon' ? x.ds === 'date' && days(x.d) >= 0 && days(x.d) <= 120 : Array.isArray(x[field]) ? x[field].includes(value) : x[field] === value).length}</span></label>)}</div></div>)}</div>
       <div className="activef">{GROUPS.flatMap(([group, , , options]) => options.filter(([v]) => filters[group].includes(v)).map(([v, label]) => <span className="afc" key={`${group}-${v}`}>{label ? t(label) : area(v)} <button onClick={() => updateFilter(group, v)} aria-label={`${t('clearall')}: ${label ? t(label) : area(v)}`}>×</button></span>))}{Object.values(filters).some(a => a.length) && <button className="linkbtn" onClick={reset}>{t('clearall')}</button>}</div><p className="fhint">{t('dhint')}</p><details className="mobile-hint"><summary>{t('dstat')}</summary><p>{t('dhint')}</p></details>
     </div></div>
     <main className="wrap" id="catalog">{notice && <div className="notice" role="status">{notice}</div>}<div className="meta"><div className="count">{t('found')} <b>{source === 'loading' ? '…' : visible.length}</b> {t('count')}</div><div className="metaR"><label className="toggle"><input type="checkbox" checked={compact} onChange={e => setCompact(e.target.checked)} />{t('compact')}</label><button className={`lockchip${key ? ' on' : ''}`} onClick={key ? lock : () => setLoginOpen(true)}>{key ? '🔓' : '🔒'} {t('counselor')}</button>{key && <button className={`lockchip${editing ? ' on' : ''}`} onClick={() => setEditing(!editing)}>{t('edit')}</button>}<button className="linkbtn" onClick={reset}>{t('reset')}</button></div></div>
