@@ -8,7 +8,7 @@
   --ok:#1D7A4C; --ok-soft:#E6F4EC; --warn:#8A5300; --warn-soft:#FEF3E0;
   --alert:#B3261E; --alert-soft:#FDECEB;
   --brand:#F5A623; --brand-soft:#FFF1D5; --brand-ink:#774300;
-  --violet:#B49CFF; --violet-soft:#F0EBFF; --violet-ink:#51349A;
+  --violet:#8054CC; --violet-on-dark:#C1A8F0; --violet-soft:#F0EBFF; --violet-ink:#51349A;
   --r:14px; --shadow:0 1px 2px rgba(26,29,26,.04),0 6px 20px rgba(26,29,26,.05);
   --f:-apple-system,BlinkMacSystemFont,"Segoe UI","Inter",system-ui,"Helvetica Neue",Arial,sans-serif;
 }
@@ -45,7 +45,7 @@ header.top{background:#171717;color:#F7F7F5;position:relative}
 
 .hero{padding:52px 0 30px;position:relative;z-index:1}
 .hero-copy{max-width:920px}
-.eyebrow{color:var(--violet);font-size:13px;letter-spacing:.16em;font-weight:800;margin:0 0 20px}
+.eyebrow{color:var(--violet-on-dark);font-size:13px;letter-spacing:.16em;font-weight:800;margin:0 0 20px}
 .eyebrow span{color:#858585;margin:0 7px}
 h1{font-size:clamp(42px,5.4vw,76px);line-height:1.02;margin:0 0 20px;letter-spacing:-.038em;font-weight:850;text-wrap:balance}
 .sub{color:#D0D0CC;margin:0;font-size:19px;max-width:60ch;line-height:1.5}
@@ -84,7 +84,7 @@ select{padding:14px 13px;border:1px solid var(--line-2);border-radius:12px;backg
 .fb:hover{border-color:var(--ink-3);color:var(--ink)}
 .fdrop.open .fb{border-color:var(--brand);color:var(--ink)}
 .fb.act{border-color:var(--violet);background:var(--violet-soft);color:var(--violet-ink)}
-.fb .cb{background:var(--violet);color:#181818;font-size:11.5px;font-weight:800;min-width:19px;height:19px;
+.fb .cb{background:var(--violet);color:#FFF;font-size:11.5px;font-weight:800;min-width:19px;height:19px;
   border-radius:10px;display:inline-flex;align-items:center;justify-content:center;padding:0 6px}
 .fb .car{opacity:.45;font-size:10px;transition:.15s}
 .fdrop.open .fb .car{transform:rotate(180deg);opacity:.8}
