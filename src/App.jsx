@@ -133,7 +133,7 @@ export default function App() {
   const t = value => T[lang]?.[value] || value
   const area = value => AREAS[value]?.[lang] || value
 
-  useEffect(() => { document.documentElement.lang = lang; document.title = `${T[lang].title} · Astana Garden International School` }, [lang])
+  useEffect(() => { document.documentElement.lang = lang; document.title = `${T[lang].title} · GC Education` }, [lang])
   useEffect(() => { document.body.classList.toggle('compact', compact); document.body.classList.toggle('editing', editing) }, [compact, editing])
   useEffect(() => {
     const scroll = () => setShowTop(window.scrollY > 520)
@@ -226,14 +226,14 @@ export default function App() {
   const download = () => {
     const blob = new Blob([JSON.stringify({ items, sec: { ...initial.sec, notes: encrypted } })], { type: 'application/json' })
     const url = URL.createObjectURL(blob), link = document.createElement('a')
-    link.href = url; link.download = `AGIS_catalog_${new Date().toISOString().slice(0, 10)}.json`; link.click(); URL.revokeObjectURL(url)
+    link.href = url; link.download = `GC_catalog_${new Date().toISOString().slice(0, 10)}.json`; link.click(); URL.revokeObjectURL(url)
     setDirty(false)
   }
 
   return <>
-    <header className="top"><div className="wrap"><div className="brandbar"><div className="brand"><img className="mark" src="/logo-mark.png" alt="" /><img className="word" src="/logo-word.png" alt="Astana Garden International School" /></div><div className="langs" role="group" aria-label="Language">{LANGS.map(l => <button key={l} aria-pressed={lang === l} onClick={() => setLang(l)}>{({ ru: 'Рус', kk: 'Қаз', en: 'Eng' })[l]}</button>)}</div></div>
+    <header className="top"><div className="wrap"><div className="brandbar"><span className="brand-logo"><img src="/gc-education.png" alt="GC Education" /></span><div className="langs" role="group" aria-label="Language">{LANGS.map(l => <button key={l} aria-pressed={lang === l} onClick={() => setLang(l)}>{({ ru: 'Рус', kk: 'Қаз', en: 'Eng' })[l]}</button>)}</div></div>
       <div className="hero">
-        <div className="hero-copy"><p className="eyebrow">AGIS <span>/</span> 2026–27</p><h1>{t('title')}</h1><p className="sub">{t('sub')}</p><p className="checked">✓ <span>{t('checked')}</span></p></div>
+        <div className="hero-copy"><p className="eyebrow">GC EDUCATION <span>/</span> 2026–27</p><h1>{t('title')}</h1><p className="sub">{t('sub')}</p><p className="checked">✓ <span>{t('checked')}</span></p></div>
         <div className="stats"><div className="stat"><b>{items.length}</b><span>{t('stat1')}</span></div><div className="stat"><b>{items.filter(x => x.c === 'free').length}</b><span>{t('stat2')}</span></div><div className="stat"><b>{items.filter(x => x.ds === 'date').length}</b><span>{t('stat3')}</span></div><div className="stat"><b>{items.filter(x => x.k === 'yes').length}</b><span>{t('stat4')}</span></div></div>
       </div>
     </div></header>
@@ -245,7 +245,7 @@ export default function App() {
       {editing && <div className="editbar"><span className="et">{t('editon')}</span><button className="btn" onClick={() => setCurrent(null)}>{t('addnew')}</button><button className="btn warn" onClick={download}>{t('download').replace(/HTML/i, 'JSON')}</button><button className="btn" onClick={() => setEditing(false)}>{t('editoff')}</button></div>}
       {visible.length ? <div className="grid">{visible.map(x => <Card key={x.id} x={x} lang={lang} t={t} note={notes[x.id]} unlocked={!!key} editing={editing} expanded={expanded.includes(x.id)} onToggle={() => setExpanded(prev => prev.includes(x.id) ? prev.filter(v => v !== x.id) : [...prev, x.id])} onEdit={() => setCurrent(x)} />)}</div> : <div className="empty"><h3>{t('nothing')}</h3><p>{t('nothingHint')}</p><button className="btn" onClick={reset}>{t('reset')}</button></div>}
     </main>
-    <footer><div className="wrap"><p className="credit"><img src="/logo-footer.png" alt="" /> <span>{t('checked')} · Astana Garden International School</span></p></div></footer>
+    <footer><div className="wrap"><p className="credit"><span className="brand-logo footer-logo"><img src="/gc-education.png" alt="GC Education" /></span><span>{t('checked')} · GC Education</span></p></div></footer>
     <button id="totop" className={showTop ? 'on' : ''} title={t('top')} onClick={() => scrollTo({ top: 0, behavior: 'smooth' })}>↑</button>
     {loginOpen && <div className="modal" role="dialog" aria-modal="true" aria-label={t('pwTitle')} onMouseDown={e => { if (e.target === e.currentTarget) setLoginOpen(false) }}><div className="mbox"><h3>{t('pwTitle')}</h3><p>{t('pwText')}</p>{supabase && <><input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Supabase email" autoComplete="username" /><input type="password" value={accountPassword} onChange={e => setAccountPassword(e.target.value)} placeholder="Supabase password" autoComplete="current-password" /></>}<input type="password" value={counselorPassword} onChange={e => setCounselorPassword(e.target.value)} placeholder={t('pwPlaceholder')} onKeyDown={e => { if (e.key === 'Enter') unlock() }} />{loginError && <p className="merr on" role="alert">{loginError}</p>}<div className="mact"><button className="btn" onClick={() => setLoginOpen(false)}>{t('pwCancel')}</button><button className="btn primary" disabled={busy} onClick={unlock}>{busy ? t('locking') : t('pwOk')}</button></div></div></div>}
     {current !== undefined && <Editor key={current?.id || 'new'} original={current} originalNote={notes[current?.id]} lang={lang} t={t} busy={busy} onClose={() => setCurrent(undefined)} onSave={saveItem} onDelete={deleteItem} />}

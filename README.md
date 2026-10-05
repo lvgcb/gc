@@ -1,4 +1,4 @@
-# AGIS catalog
+# GC Education catalog
 
 React/Vite catalog for Vercel. The site shows a bundled copy of all 237 entries until Supabase is connected. After connection, edits save to Supabase and appear for all visitors.
 
