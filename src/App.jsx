@@ -3,6 +3,7 @@ import translations from './translations.json'
 import { supabase } from './supabase.js'
 import { encryptNote, unlockNotes } from './crypto.js'
 import { isGroupEvent } from './groupEvents.js'
+import { normalizeTelegramUsername } from './telegram.js'
 
 const { T, AREAS } = translations
 const LANGS = ['ru', 'kk', 'en']
@@ -30,7 +31,58 @@ const defaultNote = () => ({ c: 'check', cn: { ru: '', kk: '', en: '' }, f: { ru
 const loadCatalog = async () => (await import('./catalog.json')).default
 const PAGE_SIZE = 24
 
-function Card({ x, lang, t, note, unlocked, editing, expanded, onToggle, onEdit }) {
+function TeamFinder({ eventId, t, available }) {
+  const [open, setOpen] = useState(false)
+  const [username, setUsername] = useState('')
+  const [members, setMembers] = useState([])
+  const [busy, setBusy] = useState(false)
+  const [message, setMessage] = useState('')
+
+  const load = async () => {
+    const { data, error } = await supabase.from('team_requests').select('telegram_username').eq('event_id', eventId).order('created_at', { ascending: false }).limit(50)
+    if (error) throw error
+    setMembers(data.map(row => row.telegram_username))
+  }
+  const toggle = async () => {
+    if (open) { setOpen(false); return }
+    setOpen(true)
+    if (!available) return
+    setBusy(true)
+    try { await load() } catch { setMessage(t('teamError')) }
+    finally { setBusy(false) }
+  }
+  const submit = async event => {
+    event.preventDefault()
+    if (!available) return
+    const handle = normalizeTelegramUsername(username)
+    if (!handle) { setMessage(t('teamInvalid')); return }
+    setBusy(true); setMessage('')
+    try {
+      const { error } = await supabase.from('team_requests').upsert({ event_id: eventId, telegram_username: handle }, { onConflict: 'event_id,telegram_username', ignoreDuplicates: true })
+      if (error) throw error
+      setMembers(previous => [...new Set([handle, ...previous])])
+      setUsername('')
+      setMessage(t('teamSaved'))
+      try { await load() } catch { /* Keep the submitted username visible. */ }
+    } catch { setMessage(t('teamError')) }
+    finally { setBusy(false) }
+  }
+
+  return <div className="team-finder">
+    <button className="btn team-toggle" type="button" aria-expanded={open} aria-controls={`team-${eventId}`} onClick={toggle}>{t('findTeam')}</button>
+    {open && <div id={`team-${eventId}`} className="team-panel">
+      <form onSubmit={submit}>
+        <label htmlFor={`telegram-${eventId}`}>{t('telegramUsername')}</label>
+        <div className="team-input"><span aria-hidden="true">@</span><input id={`telegram-${eventId}`} type="text" inputMode="text" autoComplete="off" autoCapitalize="none" spellCheck="false" autoFocus value={username} onChange={event => setUsername(event.target.value)} placeholder="username" maxLength="33" required /><button className="btn" type="submit" disabled={busy || !available}>{t('teamJoin')}</button></div>
+      </form>
+      <p className="team-hint">{available ? t('teamPublic') : t('teamUnavailable')}</p>
+      {members.length > 0 && <div className="team-members"><strong>{t('teamMembers')}</strong><div>{members.map(handle => <a key={handle} href={`https://t.me/${handle}`} target="_blank" rel="noopener noreferrer">@{handle}</a>)}</div></div>}
+      {message && <p className="team-message" role="status">{message}</p>}
+    </div>}
+  </div>
+}
+
+function Card({ x, lang, t, note, unlocked, editing, expanded, onToggle, onEdit, teamAvailable }) {
   const L = x[lang] || {}, d = days(x.d), urgent = x.ds === 'date' && d !== null && d >= 0 && d <= 45
   const area = value => AREAS[value]?.[lang] || value
   const rows = [['accessf', 'z'], ['age', 'g'], ['field', 'f'], ['period', 'p'], ['format', 'm'], ['cost', 'o'], ['aid', 'i'], ['sel', 's'], ['outcome', 'r']]
@@ -54,6 +106,7 @@ function Card({ x, lang, t, note, unlocked, editing, expanded, onToggle, onEdit 
         {unlocked && note && <><div className={`vline ${note.c === 'ok' ? 'ok' : 'chk'}`}><span className="vi">{note.c === 'ok' ? '✓' : '!'}</span><span><b>{t(note.c === 'ok' ? 'vok' : 'vcheck')}</b>{note.cn?.[lang] ? ` — ${note.cn[lang]}` : ''}</span></div>{note.f?.[lang] && <div className="note"><b>{t('fit')}</b>{note.f[lang]}</div>}</>}
       </div> : <div className="facts">{L.g && <div className="fact"><span className="k">{t('age')}</span><span>{L.g}</span></div>}{L.o && <div className="fact"><span className="k">{t('cost')}</span><span>{L.o.slice(0, 72)}</span></div>}</div>}
       <div className="actions"><button className="btn" aria-expanded={expanded} aria-label={`${t(expanded ? 'less' : 'more')}: ${x.n}`} onClick={onToggle}>{t(expanded ? 'less' : 'more')}</button>{editing && <button className="btn warn" aria-label={`${t('edit')}: ${x.n}`} onClick={onEdit}>{t('edit')}</button>}{webUrl(x.u) && <a className="btn primary" aria-label={`${t('site')}: ${x.n}`} href={webUrl(x.u)} target="_blank" rel="noopener noreferrer">{t('site')}</a>}</div>
+      {isGroupEvent(x) && <TeamFinder eventId={x.id} t={t} available={teamAvailable} />}
     </div>
   </article>
 }
@@ -293,7 +346,7 @@ export default function App() {
     </div></div>
     <main className="wrap" id="catalog">{notice && <div className="notice" role="status">{notice}</div>}<div className="meta"><div className="count">{t('found')} <b>{source === 'loading' ? '…' : visible.length}</b> {t('count')}</div><div className="metaR"><label className="toggle"><input type="checkbox" checked={compact} onChange={e => setCompact(e.target.checked)} />{t('compact')}</label><button className={`lockchip${key ? ' on' : ''}`} onClick={key ? lock : () => setLoginOpen(true)}>{key ? '🔓' : '🔒'} {t('counselor')}</button>{key && <button className={`lockchip${editing ? ' on' : ''}`} onClick={() => setEditing(!editing)}>{t('edit')}</button>}<button className="linkbtn" onClick={reset}>{t('reset')}</button></div></div>
       {editing && <div className="editbar"><span className="et">{t('editon')}</span><button className="btn" onClick={() => setCurrent(null)}>{t('addnew')}</button><button className="btn warn" onClick={download}>{t('download').replace(/HTML/i, 'JSON')}</button><button className="btn" onClick={() => setEditing(false)}>{t('editoff')}</button></div>}
-      {source === 'loading' ? <div className="empty" role="status"><p>{t('loading')}</p></div> : visible.length ? <><div className="grid">{visible.slice(0, shown).map(x => <Card key={x.id} x={x} lang={lang} t={t} note={notes[x.id]} unlocked={!!key} editing={editing} expanded={expanded.includes(x.id)} onToggle={() => setExpanded(prev => prev.includes(x.id) ? prev.filter(v => v !== x.id) : [...prev, x.id])} onEdit={() => setCurrent(x)} />)}</div>{shown < visible.length && <div className="more-wrap"><button className="btn more-btn" onClick={() => setShown(value => value + PAGE_SIZE)}>{t('loadMore')} ({visible.length - shown})</button></div>}</> : <div className="empty"><h3>{t('nothing')}</h3><p>{t('nothingHint')}</p><button className="btn" onClick={reset}>{t('reset')}</button></div>}
+      {source === 'loading' ? <div className="empty" role="status"><p>{t('loading')}</p></div> : visible.length ? <><div className="grid">{visible.slice(0, shown).map(x => <Card key={x.id} x={x} lang={lang} t={t} note={notes[x.id]} unlocked={!!key} editing={editing} teamAvailable={source === 'supabase'} expanded={expanded.includes(x.id)} onToggle={() => setExpanded(prev => prev.includes(x.id) ? prev.filter(v => v !== x.id) : [...prev, x.id])} onEdit={() => setCurrent(x)} />)}</div>{shown < visible.length && <div className="more-wrap"><button className="btn more-btn" onClick={() => setShown(value => value + PAGE_SIZE)}>{t('loadMore')} ({visible.length - shown})</button></div>}</> : <div className="empty"><h3>{t('nothing')}</h3><p>{t('nothingHint')}</p><button className="btn" onClick={reset}>{t('reset')}</button></div>}
     </main>
     <footer><div className="wrap"><p className="credit"><span className="brand-logo footer-logo"><img src="/gc-education.png" alt="" /></span><span>{t('checked')} · GC Education</span></p></div></footer>
     <button id="totop" className={showTop ? 'on' : ''} title={t('top')} onClick={() => scrollTo({ top: 0, behavior: 'smooth' })}>↑</button>

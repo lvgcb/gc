@@ -161,6 +161,23 @@ select{padding:14px 13px;border:1px solid var(--line-2);border-radius:12px;backg
   letter-spacing:.04em;font-weight:650;padding-top:2px}
 .actions{display:flex;gap:9px;flex-wrap:wrap;padding-top:2px}
 .card .actions .btn{padding:8px 12px}
+.team-finder{padding-top:2px}
+.team-toggle{color:var(--violet-ink);border-color:var(--violet);padding:8px 12px}
+.team-toggle:hover,.team-toggle[aria-expanded=true]{background:var(--violet-soft);border-color:var(--violet)}
+.team-panel{margin-top:10px;padding:12px;background:var(--violet-soft);border-radius:10px}
+.team-panel label,.team-members strong{display:block;color:var(--violet-ink);font-size:13px;font-weight:700;margin-bottom:6px}
+.team-input{display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--line-2);border-radius:9px;padding:4px 4px 4px 11px}
+.team-input:focus-within{border-color:var(--violet);outline:2px solid var(--violet)}
+.team-input>span{color:var(--ink-3)}
+.team-input input{min-width:0;flex:1;border:0;outline:0;background:transparent;color:var(--ink);font-size:14px}
+.team-input .btn{background:var(--violet);border-color:var(--violet);color:#fff;padding:7px 12px}
+.team-input .btn:hover{background:var(--violet-ink);border-color:var(--violet-ink)}
+.team-hint,.team-message{font-size:12.5px;color:var(--ink-2);line-height:1.45;margin:8px 0 0}
+.team-message{color:var(--violet-ink);font-weight:650}
+.team-members{margin-top:12px}
+.team-members>div{display:flex;flex-wrap:wrap;gap:6px}
+.team-members a{font-size:13px;color:var(--violet-ink);background:#fff;border-radius:7px;padding:3px 8px;text-decoration:none}
+.team-members a:hover{text-decoration:underline}
 .btn{border:1px solid var(--line-2);background:var(--surface);color:var(--ink);font-size:14px;
   font-weight:700;padding:10px 16px;border-radius:9px;cursor:pointer;transition:.13s;text-decoration:none;
   display:inline-flex;align-items:center;gap:6px}
@@ -309,7 +326,7 @@ footer .fh{font-size:14.5px;color:var(--ink-3);margin:0 0 16px;max-width:76ch}
   .mobile-hint{display:block;margin-top:12px;color:var(--ink-2);font-size:13px}
   .mobile-hint summary{cursor:pointer;font-weight:650;min-height:44px;display:list-item;align-content:center}
   .mobile-hint p{margin:0 0 8px;line-height:1.5}
-  .lockchip,.card .actions .btn{min-height:44px;box-sizing:border-box}
+  .lockchip,.card .actions .btn,.team-toggle,.team-input .btn{min-height:44px;box-sizing:border-box}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
@@ -317,7 +334,7 @@ footer .fh{font-size:14.5px;color:var(--ink-3);margin:0 0 16px;max-width:76ch}
   .card:hover,#totop:hover{transform:none}
 }
 @media print{
-  .controls,.langs,.actions,.modal{display:none!important}
+  .controls,.langs,.actions,.team-finder,.modal{display:none!important}
   .card{break-inside:avoid;box-shadow:none}
   .grid{grid-template-columns:1fr 1fr}
   body{font-size:11pt}
