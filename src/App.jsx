@@ -175,7 +175,6 @@ export default function App() {
   const [expanded, setExpanded] = useState([])
   const [filtersOpen, setFiltersOpen] = useState(false)
   const filterDialog = useRef(null)
-  const [compact, setCompact] = useState(false)
   const [showTop, setShowTop] = useState(false)
   const [loginOpen, setLoginOpen] = useState(false)
   const [email, setEmail] = useState('')
@@ -193,7 +192,7 @@ export default function App() {
   const area = value => AREAS[value]?.[lang] || value
 
   useEffect(() => { document.documentElement.lang = lang; document.title = `${T[lang].title} · GC Education` }, [lang])
-  useEffect(() => { document.body.classList.toggle('compact', compact); document.body.classList.toggle('editing', editing) }, [compact, editing])
+  useEffect(() => { document.body.classList.toggle('editing', editing) }, [editing])
   useEffect(() => {
     const dialog = filterDialog.current
     if (filtersOpen) dialog.showModal()
@@ -360,7 +359,7 @@ export default function App() {
       <div className="filter-body">{GROUPS.map(([group, label, field, options]) => <fieldset className="filter-group" key={group}><legend>{t(label)}</legend><div className="filter-options">{options.map(([value, text]) => <label key={value}><input type="checkbox" checked={filters[group].includes(value)} onChange={() => updateFilter(group, value)} /><span>{text ? t(text) : area(value)}</span><small>{optionCount(group, field, value)}</small></label>)}</div></fieldset>)}</div>
       <div className="filter-foot"><button className="linkbtn" type="button" disabled={!selectedFilters} onClick={() => setFilters(emptyFilter())}>{t('clearall')}</button><button className="btn filter-done" type="button" onClick={() => setFiltersOpen(false)}>{t('found')} {source === 'loading' ? '…' : visible.length} {t('count')}</button></div>
     </dialog>
-    <main className="wrap" id="catalog">{notice && <div className="notice" role="status">{notice}</div>}<div className="meta"><div className="count">{t('found')} <b>{source === 'loading' ? '…' : visible.length}</b> {t('count')}</div><div className="metaR"><label className="toggle"><input type="checkbox" checked={compact} onChange={e => setCompact(e.target.checked)} />{t('compact')}</label><button className={`lockchip${key ? ' on' : ''}`} onClick={key ? lock : () => setLoginOpen(true)}>{key ? '🔓' : '🔒'} {t('counselor')}</button>{key && <button className={`lockchip${editing ? ' on' : ''}`} onClick={() => setEditing(!editing)}>{t('edit')}</button>}</div></div>
+    <main className="wrap" id="catalog">{notice && <div className="notice" role="status">{notice}</div>}<div className="meta"><div className="count">{t('found')} <b>{source === 'loading' ? '…' : visible.length}</b> {t('count')}</div><div className="metaR"><button className={`lockchip${key ? ' on' : ''}`} onClick={key ? lock : () => setLoginOpen(true)}>{key ? '🔓' : '🔒'} {t('counselor')}</button>{key && <button className={`lockchip${editing ? ' on' : ''}`} onClick={() => setEditing(!editing)}>{t('edit')}</button>}</div></div>
       {editing && <div className="editbar"><span className="et">{t('editon')}</span><button className="btn" onClick={() => setCurrent(null)}>{t('addnew')}</button><button className="btn warn" onClick={download}>{t('download').replace(/HTML/i, 'JSON')}</button><button className="btn" onClick={() => setEditing(false)}>{t('editoff')}</button></div>}
       {source === 'loading' ? <div className="empty" role="status"><p>{t('loading')}</p></div> : visible.length ? <><div className="grid">{visible.slice(0, shown).map(x => <Card key={x.id} x={x} lang={lang} t={t} note={notes[x.id]} unlocked={!!key} editing={editing} teamAvailable={source === 'supabase'} expanded={expanded.includes(x.id)} onToggle={() => setExpanded(prev => prev.includes(x.id) ? prev.filter(v => v !== x.id) : [...prev, x.id])} onEdit={() => setCurrent(x)} />)}</div>{shown < visible.length && <div className="more-wrap"><button className="btn more-btn" onClick={() => setShown(value => value + PAGE_SIZE)}>{t('loadMore')} ({visible.length - shown})</button></div>}</> : <div className="empty"><h3>{t('nothing')}</h3><p>{t('nothingHint')}</p><button className="btn" onClick={reset}>{t('reset')}</button></div>}
     </main>
