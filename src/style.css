@@ -139,7 +139,6 @@ select{padding:14px 13px;border:1px solid var(--line-2);border-radius:12px;backg
   color:var(--brand-ink);margin-bottom:3px}
 .dl .hl{display:block;font-size:16px;font-weight:750;color:var(--ink);margin-bottom:3px;line-height:1.4}
 .dl .val{font-size:13.5px;color:var(--ink-2);line-height:1.5}
-.card:not(.expanded) .dl .val{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;line-clamp:1;overflow:hidden}
 .dl.soft{background:var(--surface-2)}
 .dl.soft .lab{color:var(--ink-3)}
 .pill.st{background:var(--surface-2);color:var(--ink-3)}
@@ -148,14 +147,8 @@ select{padding:14px 13px;border:1px solid var(--line-2);border-radius:12px;backg
 .pill.st.closed{background:var(--surface-2);color:var(--ink-3);text-decoration:line-through}
 .card.urg .dl{background:var(--brand-soft)}
 .card.urg .dl .lab{color:var(--brand-ink)}
-.desc{font-size:14px;color:var(--ink-2);margin:0;line-height:1.5}
-.card:not(.expanded) .desc{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}
-.facts{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--ink-2);
-  border-top:1px solid var(--line);padding-top:8px;margin-top:auto}
-.fact{display:flex;gap:8px}
-.card:not(.expanded) .fact>span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.fact .k{color:var(--ink-3);min-width:76px;flex-shrink:0;font-size:12.5px;text-transform:uppercase;
-  letter-spacing:.04em;font-weight:650;padding-top:2px}
+.summary,.desc{font-size:14px;color:var(--ink-2);margin:0;line-height:1.5}
+.summary{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden}
 .actions{display:flex;gap:9px;flex-wrap:wrap;padding-top:2px}
 .card .actions .btn{padding:8px 12px}
 .team-finder{padding-top:2px}

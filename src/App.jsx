@@ -30,6 +30,14 @@ const blankItem = () => ({ id: `N${crypto.randomUUID()}`, n: '', t: 'competition
 const defaultNote = () => ({ c: 'check', cn: { ru: '', kk: '', en: '' }, f: { ru: '', kk: '', en: '' } })
 const loadCatalog = async () => (await import('./catalog.json')).default
 const PAGE_SIZE = 24
+const brief = value => {
+  const text = value?.trim() || ''
+  const sentences = text.match(/.*?[.!?](?=\s|$)|.+$/g) || []
+  const first = sentences[0] || ''
+  const letters = first.replace(/[^\p{L}]/gu, '')
+  const sentence = letters.length > 15 && letters === letters.toUpperCase() ? sentences[1]?.trim() || first : first
+  return sentence.length > 190 ? `${sentence.slice(0, 190).replace(/\s+\S*$/, '')}…` : sentence
+}
 
 function TeamFinder({ eventId, t, available }) {
   const [open, setOpen] = useState(false)
@@ -88,24 +96,25 @@ function Card({ x, lang, t, note, unlocked, editing, expanded, onToggle, onEdit,
   const rows = [['accessf', 'z'], ['age', 'g'], ['field', 'f'], ['period', 'p'], ['format', 'm'], ['cost', 'o'], ['aid', 'i'], ['sel', 's'], ['outcome', 'r']]
   return <article className={`card${urgent ? ' urg' : ''}${x.t === 'program' ? ' prog' : ''}${expanded ? ' expanded' : ''}`}>
     <div className="stripe" /><div className="cbody">
-      <div className="kicker"><span className="tt">{t(({ competition: 'comp', program: 'prog', scholarship: 'schol', after: 'after' })[x.t] || 'prog')}</span>{x.a.slice(0, 2).map(a => <span key={a}><span className="sep"> · </span>{area(a)}</span>)}</div>
+      <div className="kicker"><span className="tt">{t(({ competition: 'comp', program: 'prog', scholarship: 'schol', after: 'after' })[x.t] || 'prog')}</span>{expanded && x.a.map(a => <span key={a}><span className="sep"> · </span>{area(a)}</span>)}</div>
       <h3 className="cname">{x.n}</h3>
-      <div className="pills">
-        {x.c !== 'paid' && <span className={`pill ${x.c === 'aid' ? 'aid' : x.c === 'free' ? 'free' : ''}`}>{t(x.c === 'aid' ? 'c_aid' : x.c)}</span>}
-        {x.k === 'limited' && <span className="pill lim">{t('limited')}</span>}
-        <span className={`pill lv-${x.lv}`}>{t(`l_${x.lv}`)}</span>
-        {isGroupEvent(x) && <span className="pill group-event">{t('groupEvents')}</span>}
-        {x.st && lang !== 'ru' && <span className="stale">{t('stale')}</span>}
-        {urgent && <span className="pill urg">{d === 0 ? t('today') : `${d} ${t('urgent')}`}</span>}
-        {x.ds !== 'date' && <span className={`pill st ${x.ds}`}>{t(`d_${x.ds}`)}</span>}
-      </div>
-      <div className={`dl${x.ds !== 'date' ? ' soft' : ''}`}><span className="lab">{t('deadline')}</span>{L.dn && <span className="hl">{L.dn}</span>}<span className="val">{expanded ? L.l || t('nodate') : (L.l || t('nodate')).slice(0, 145)}</span></div>
-      {L.e && <p className="desc">{L.e}</p>}
-      {expanded ? <div className="details">
+      {!expanded && L.e && <p className="summary">{brief(L.e)}</p>}
+      {expanded && <div className="details">
+        {L.e && <p className="desc">{L.e}</p>}
+        <div className="pills">
+          {x.c !== 'paid' && <span className={`pill ${x.c === 'aid' ? 'aid' : x.c === 'free' ? 'free' : ''}`}>{t(x.c === 'aid' ? 'c_aid' : x.c)}</span>}
+          {x.k === 'limited' && <span className="pill lim">{t('limited')}</span>}
+          <span className={`pill lv-${x.lv}`}>{t(`l_${x.lv}`)}</span>
+          {isGroupEvent(x) && <span className="pill group-event">{t('groupEvents')}</span>}
+          {x.st && lang !== 'ru' && <span className="stale">{t('stale')}</span>}
+          {urgent && <span className="pill urg">{d === 0 ? t('today') : `${d} ${t('urgent')}`}</span>}
+          {x.ds !== 'date' && <span className={`pill st ${x.ds}`}>{t(`d_${x.ds}`)}</span>}
+        </div>
+        <div className={`dl${x.ds !== 'date' ? ' soft' : ''}`}><span className="lab">{t('deadline')}</span>{L.dn && <span className="hl">{L.dn}</span>}<span className="val">{L.l || t('nodate')}</span></div>
         {rows.filter(([, key]) => L[key]).map(([label, key]) => <div className="drow" key={key}><span className="k">{t(label)}</span><span className="v">{L[key]}</span></div>)}
         {unlocked && note && <><div className={`vline ${note.c === 'ok' ? 'ok' : 'chk'}`}><span className="vi">{note.c === 'ok' ? '✓' : '!'}</span><span><b>{t(note.c === 'ok' ? 'vok' : 'vcheck')}</b>{note.cn?.[lang] ? ` — ${note.cn[lang]}` : ''}</span></div>{note.f?.[lang] && <div className="note"><b>{t('fit')}</b>{note.f[lang]}</div>}</>}
-      </div> : <div className="facts">{L.g && <div className="fact"><span className="k">{t('age')}</span><span>{L.g}</span></div>}{L.o && <div className="fact"><span className="k">{t('cost')}</span><span>{L.o.slice(0, 72)}</span></div>}</div>}
-      <div className="actions"><button className="btn" aria-expanded={expanded} aria-label={`${t(expanded ? 'less' : 'more')}: ${x.n}`} onClick={onToggle}>{t(expanded ? 'less' : 'more')}</button>{editing && <button className="btn warn" aria-label={`${t('edit')}: ${x.n}`} onClick={onEdit}>{t('edit')}</button>}{webUrl(x.u) && <a className="btn primary" aria-label={`${t('site')}: ${x.n}`} href={webUrl(x.u)} target="_blank" rel="noopener noreferrer">{t('site')}</a>}</div>
+      </div>}
+      <div className="actions"><button className="btn" aria-expanded={expanded} aria-label={`${t(expanded ? 'less' : 'more')}: ${x.n}`} onClick={onToggle}>{t(expanded ? 'less' : 'more')}</button>{editing && <button className="btn warn" aria-label={`${t('edit')}: ${x.n}`} onClick={onEdit}>{t('edit')}</button>}{expanded && webUrl(x.u) && <a className="btn primary" aria-label={`${t('site')}: ${x.n}`} href={webUrl(x.u)} target="_blank" rel="noopener noreferrer">{t('site')}</a>}</div>
       {isGroupEvent(x) && <TeamFinder eventId={x.id} t={t} available={teamAvailable} />}
     </div>
   </article>
