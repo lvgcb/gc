@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import translations from './translations.json'
 import { supabase } from './supabase.js'
 import { encryptNote, unlockNotes } from './crypto.js'
@@ -173,8 +173,8 @@ export default function App() {
   const [sort, setSort] = useState('d')
   const [filters, setFilters] = useState(emptyFilter)
   const [expanded, setExpanded] = useState([])
-  const [openFilter, setOpenFilter] = useState(null)
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const filterDialog = useRef(null)
   const [compact, setCompact] = useState(false)
   const [showTop, setShowTop] = useState(false)
   const [loginOpen, setLoginOpen] = useState(false)
@@ -195,10 +195,20 @@ export default function App() {
   useEffect(() => { document.documentElement.lang = lang; document.title = `${T[lang].title} · GC Education` }, [lang])
   useEffect(() => { document.body.classList.toggle('compact', compact); document.body.classList.toggle('editing', editing) }, [compact, editing])
   useEffect(() => {
+    const dialog = filterDialog.current
+    if (filtersOpen) dialog.showModal()
+    else if (dialog.open) dialog.close()
+  }, [filtersOpen])
+  useEffect(() => {
+    if (!filtersOpen) return
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = previous }
+  }, [filtersOpen])
+  useEffect(() => {
     const scroll = () => setShowTop(window.scrollY > 520)
-    const click = event => { if (!event.target.closest('.fdrop')) setOpenFilter(null) }
-    addEventListener('scroll', scroll); document.addEventListener('click', click); scroll()
-    return () => { removeEventListener('scroll', scroll); document.removeEventListener('click', click) }
+    addEventListener('scroll', scroll); scroll()
+    return () => removeEventListener('scroll', scroll)
   }, [])
   useEffect(() => {
     let active = true
@@ -253,7 +263,7 @@ export default function App() {
       previous?.focus()
     }
   }, [loginOpen, current])
-  useEffect(() => { const handler = e => { if (e.key === 'Escape') { setCurrent(undefined); setLoginOpen(false); setOpenFilter(null) } }; document.addEventListener('keydown', handler); return () => document.removeEventListener('keydown', handler) }, [])
+  useEffect(() => { const handler = e => { if (e.key === 'Escape') { setCurrent(undefined); setLoginOpen(false) } }; document.addEventListener('keydown', handler); return () => document.removeEventListener('keydown', handler) }, [])
   useEffect(() => { const handler = e => { if (dirty) { e.preventDefault(); e.returnValue = '' } }; addEventListener('beforeunload', handler); return () => removeEventListener('beforeunload', handler) }, [dirty])
 
   const visible = useMemo(() => items.filter(x => {
@@ -277,6 +287,8 @@ export default function App() {
 
   const updateFilter = (group, value) => setFilters(prev => ({ ...prev, [group]: prev[group].includes(value) ? prev[group].filter(v => v !== value) : [...prev[group], value] }))
   const reset = () => { setQuery(''); setFilters(emptyFilter()); setExpanded([]); setFiltersOpen(false) }
+  const selectedFilters = Object.values(filters).reduce((count, values) => count + values.length, 0)
+  const optionCount = (group, field, value) => items.filter(x => group === 'group' ? isGroupEvent(x) : group === 'dl' && value === 'soon' ? x.ds === 'date' && days(x.d) >= 0 && days(x.d) <= 120 : Array.isArray(x[field]) ? x[field].includes(value) : x[field] === value).length
   const unlock = async () => {
     setBusy(true); setLoginError('')
     try {
@@ -340,11 +352,15 @@ export default function App() {
         <div className="stats"><div className="stat"><b>{source === 'loading' ? '…' : items.length}</b><span>{t('stat1')}</span></div><div className="stat"><b>{source === 'loading' ? '…' : items.filter(x => x.c === 'free').length}</b><span>{t('stat2')}</span></div><div className="stat"><b>{source === 'loading' ? '…' : items.filter(x => x.ds === 'date').length}</b><span>{t('stat3')}</span></div><div className="stat"><b>{source === 'loading' ? '…' : items.filter(x => x.k === 'yes').length}</b><span>{t('stat4')}</span></div></div>
       </div>
     </div></header>
-    <div className="controls"><div className="wrap"><div className="searchrow"><div className={`search${query ? ' has' : ''}`}><span className="ico">⌕</span><input type="search" aria-label={t('search')} value={query} placeholder={t('search')} onChange={e => setQuery(e.target.value)} /><button className="clr" title={t('clearq')} aria-label={t('clearq')} onClick={() => setQuery('')}>×</button></div><select value={sort} aria-label={t('sort')} onChange={e => setSort(e.target.value)}><option value="d">{t('sortd')}</option><option value="n">{t('sortn')}</option><option value="f">{t('sortf')}</option></select></div>
-      <button id="fbtn" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(value => !value)}>{t('filters')} {Object.values(filters).flat().length > 0 && <b>{Object.values(filters).flat().length}</b>} <span aria-hidden="true">⌄</span></button><div className={`fbar${filtersOpen ? ' mobile-open' : ''}`}>{GROUPS.map(([group, label, field, options]) => group === 'group' ? <button key={group} className={`fb${filters.group.length ? ' act' : ''}`} aria-pressed={!!filters.group.length} onClick={() => updateFilter('group', 'required')}>{t(label)} <span className="group-count">{items.filter(isGroupEvent).length}</span></button> : <div className={`fdrop${openFilter === group ? ' open' : ''}`} key={group}><button className={`fb${filters[group].length ? ' act' : ''}`} aria-expanded={openFilter === group} onClick={() => setOpenFilter(openFilter === group ? null : group)}>{t(label)} {filters[group].length > 0 && <span className="cb">{filters[group].length}</span>} <span className="car">▼</span></button><div className="pop">{options.map(([value, text]) => <label key={value}><input type="checkbox" checked={filters[group].includes(value)} onChange={() => updateFilter(group, value)} /><span>{text ? t(text) : area(value)}</span><span className="n">{items.filter(x => group === 'dl' && value === 'soon' ? x.ds === 'date' && days(x.d) >= 0 && days(x.d) <= 120 : Array.isArray(x[field]) ? x[field].includes(value) : x[field] === value).length}</span></label>)}</div></div>)}</div>
-      <div className="activef">{GROUPS.flatMap(([group, , , options]) => options.filter(([v]) => filters[group].includes(v)).map(([v, label]) => <span className="afc" key={`${group}-${v}`}>{label ? t(label) : area(v)} <button onClick={() => updateFilter(group, v)} aria-label={`${t('clearall')}: ${label ? t(label) : area(v)}`}>×</button></span>))}{Object.values(filters).some(a => a.length) && <button className="linkbtn" onClick={reset}>{t('clearall')}</button>}</div><p className="fhint">{t('dhint')}</p><details className="mobile-hint"><summary>{t('dstat')}</summary><p>{t('dhint')}</p></details>
+    <div className="controls"><div className="wrap"><div className="searchrow"><div className={`search${query ? ' has' : ''}`}><span className="ico">⌕</span><input type="search" aria-label={t('search')} value={query} placeholder={t('search')} onChange={e => setQuery(e.target.value)} /><button className="clr" title={t('clearq')} aria-label={t('clearq')} onClick={() => setQuery('')}>×</button></div><select value={sort} aria-label={t('sort')} onChange={e => setSort(e.target.value)}><option value="d">{t('sortd')}</option><option value="n">{t('sortn')}</option><option value="f">{t('sortf')}</option></select><button id="fbtn" className={selectedFilters ? 'active' : ''} aria-haspopup="dialog" aria-expanded={filtersOpen} aria-controls="filter-panel" onClick={() => setFiltersOpen(true)}>{t('filters')} {selectedFilters > 0 && <b>{selectedFilters}</b>} <span aria-hidden="true">☷</span></button></div>
+      <p className="fhint">{t('dhint')}</p><details className="mobile-hint"><summary>{t('dstat')}</summary><p>{t('dhint')}</p></details>
     </div></div>
-    <main className="wrap" id="catalog">{notice && <div className="notice" role="status">{notice}</div>}<div className="meta"><div className="count">{t('found')} <b>{source === 'loading' ? '…' : visible.length}</b> {t('count')}</div><div className="metaR"><label className="toggle"><input type="checkbox" checked={compact} onChange={e => setCompact(e.target.checked)} />{t('compact')}</label><button className={`lockchip${key ? ' on' : ''}`} onClick={key ? lock : () => setLoginOpen(true)}>{key ? '🔓' : '🔒'} {t('counselor')}</button>{key && <button className={`lockchip${editing ? ' on' : ''}`} onClick={() => setEditing(!editing)}>{t('edit')}</button>}<button className="linkbtn" onClick={reset}>{t('reset')}</button></div></div>
+    <dialog id="filter-panel" className="filter-panel" ref={filterDialog} aria-labelledby="filter-title" onClose={() => setFiltersOpen(false)} onClick={event => { if (event.target === event.currentTarget) setFiltersOpen(false) }}>
+      <div className="filter-head"><h2 id="filter-title">{t('filters')}{selectedFilters > 0 && <span>{selectedFilters}</span>}</h2><button className="filter-close" type="button" aria-label={t('closeFilters')} onClick={() => setFiltersOpen(false)}>×</button></div>
+      <div className="filter-body">{GROUPS.map(([group, label, field, options]) => <fieldset className="filter-group" key={group}><legend>{t(label)}</legend><div className="filter-options">{options.map(([value, text]) => <label key={value}><input type="checkbox" checked={filters[group].includes(value)} onChange={() => updateFilter(group, value)} /><span>{text ? t(text) : area(value)}</span><small>{optionCount(group, field, value)}</small></label>)}</div></fieldset>)}</div>
+      <div className="filter-foot"><button className="linkbtn" type="button" disabled={!selectedFilters} onClick={() => setFilters(emptyFilter())}>{t('clearall')}</button><button className="btn filter-done" type="button" onClick={() => setFiltersOpen(false)}>{t('found')} {source === 'loading' ? '…' : visible.length} {t('count')}</button></div>
+    </dialog>
+    <main className="wrap" id="catalog">{notice && <div className="notice" role="status">{notice}</div>}<div className="meta"><div className="count">{t('found')} <b>{source === 'loading' ? '…' : visible.length}</b> {t('count')}</div><div className="metaR"><label className="toggle"><input type="checkbox" checked={compact} onChange={e => setCompact(e.target.checked)} />{t('compact')}</label><button className={`lockchip${key ? ' on' : ''}`} onClick={key ? lock : () => setLoginOpen(true)}>{key ? '🔓' : '🔒'} {t('counselor')}</button>{key && <button className={`lockchip${editing ? ' on' : ''}`} onClick={() => setEditing(!editing)}>{t('edit')}</button>}</div></div>
       {editing && <div className="editbar"><span className="et">{t('editon')}</span><button className="btn" onClick={() => setCurrent(null)}>{t('addnew')}</button><button className="btn warn" onClick={download}>{t('download').replace(/HTML/i, 'JSON')}</button><button className="btn" onClick={() => setEditing(false)}>{t('editoff')}</button></div>}
       {source === 'loading' ? <div className="empty" role="status"><p>{t('loading')}</p></div> : visible.length ? <><div className="grid">{visible.slice(0, shown).map(x => <Card key={x.id} x={x} lang={lang} t={t} note={notes[x.id]} unlocked={!!key} editing={editing} teamAvailable={source === 'supabase'} expanded={expanded.includes(x.id)} onToggle={() => setExpanded(prev => prev.includes(x.id) ? prev.filter(v => v !== x.id) : [...prev, x.id])} onEdit={() => setCurrent(x)} />)}</div>{shown < visible.length && <div className="more-wrap"><button className="btn more-btn" onClick={() => setShown(value => value + PAGE_SIZE)}>{t('loadMore')} ({visible.length - shown})</button></div>}</> : <div className="empty"><h3>{t('nothing')}</h3><p>{t('nothingHint')}</p><button className="btn" onClick={reset}>{t('reset')}</button></div>}
     </main>
