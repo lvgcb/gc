@@ -120,7 +120,7 @@ select{padding:14px 13px;border:1px solid var(--line-2);border-radius:12px;backg
 .cbody{padding:16px;display:flex;flex-direction:column;gap:8px;flex:1}
 .kicker{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;font-weight:700;
   text-transform:uppercase;letter-spacing:.075em;color:var(--ink-3)}
-.kicker .tt{color:var(--violet-ink)}
+.kicker .tt{color:var(--violet-ink);background:var(--violet-soft);border-radius:6px;padding:3px 7px}
 .kicker .sep{opacity:.45}
 .cname{font-size:19px;font-weight:800;line-height:1.22;margin:0;letter-spacing:-.025em;text-wrap:balance}
 .pills{display:flex;gap:6px;flex-wrap:wrap}
@@ -148,7 +148,10 @@ select{padding:14px 13px;border:1px solid var(--line-2);border-radius:12px;backg
 .card.urg .dl{background:var(--brand-soft)}
 .card.urg .dl .lab{color:var(--brand-ink)}
 .summary,.desc{font-size:14px;color:var(--ink-2);margin:0;line-height:1.5}
-.summary{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden}
+.summary{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;line-clamp:4;overflow:hidden}
+.preview-deadline{display:flex;gap:8px;border-top:1px solid var(--line);padding-top:8px;margin-top:2px;
+  font-size:12.5px;line-height:1.4;color:var(--ink-2)}
+.preview-deadline span{flex-shrink:0;color:var(--violet-ink);font-weight:700}
 .actions{display:flex;gap:9px;flex-wrap:wrap;padding-top:2px}
 .card .actions .btn{padding:8px 12px}
 .team-finder{padding-top:2px}

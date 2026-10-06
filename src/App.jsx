@@ -35,8 +35,9 @@ const brief = value => {
   const sentences = text.match(/.*?[.!?](?=\s|$)|.+$/g) || []
   const first = sentences[0] || ''
   const letters = first.replace(/[^\p{L}]/gu, '')
-  const sentence = letters.length > 15 && letters === letters.toUpperCase() ? sentences[1]?.trim() || first : first
-  return sentence.length > 190 ? `${sentence.slice(0, 190).replace(/\s+\S*$/, '')}…` : sentence
+  const start = letters.length > 15 && letters === letters.toUpperCase() && sentences[1] ? 1 : 0
+  const preview = sentences.slice(start, start + 2).map(sentence => sentence.trim()).join(' ')
+  return preview.length > 250 ? `${preview.slice(0, 250).replace(/\s+\S*$/, '')}…` : preview
 }
 
 function TeamFinder({ eventId, t, available }) {
@@ -96,9 +97,10 @@ function Card({ x, lang, t, note, unlocked, editing, expanded, onToggle, onEdit,
   const rows = [['accessf', 'z'], ['age', 'g'], ['field', 'f'], ['period', 'p'], ['format', 'm'], ['cost', 'o'], ['aid', 'i'], ['sel', 's'], ['outcome', 'r']]
   return <article className={`card${urgent ? ' urg' : ''}${x.t === 'program' ? ' prog' : ''}${expanded ? ' expanded' : ''}`}>
     <div className="stripe" /><div className="cbody">
-      <div className="kicker"><span className="tt">{t(({ competition: 'comp', program: 'prog', scholarship: 'schol', after: 'after' })[x.t] || 'prog')}</span>{expanded && x.a.map(a => <span key={a}><span className="sep"> · </span>{area(a)}</span>)}</div>
+      <div className="kicker"><span className="tt">{t(({ competition: 'comp', program: 'prog', scholarship: 'schol', after: 'after' })[x.t] || 'prog')}</span>{(expanded ? x.a : x.a.slice(0, 1)).map(a => <span key={a}><span className="sep"> · </span>{area(a)}</span>)}</div>
       <h3 className="cname">{x.n}</h3>
       {!expanded && L.e && <p className="summary">{brief(L.e)}</p>}
+      {!expanded && x.ds === 'date' && d !== null && d >= 0 && L.dn && <div className="preview-deadline"><span>{t('deadline')}</span>{L.dn}</div>}
       {expanded && <div className="details">
         {L.e && <p className="desc">{L.e}</p>}
         <div className="pills">
