@@ -77,7 +77,7 @@ function TeamFinder({ eventId, t, available }) {
     finally { setBusy(false) }
   }
 
-  return <div className="team-finder">
+  return <div className={`team-finder${open ? ' open' : ''}`}>
     <button className="btn team-toggle" type="button" aria-expanded={open} aria-controls={`team-${eventId}`} onClick={toggle}>{t('findTeam')}</button>
     {open && <div id={`team-${eventId}`} className="team-panel">
       <form onSubmit={submit}>
@@ -116,8 +116,7 @@ function Card({ x, lang, t, note, unlocked, editing, expanded, onToggle, onEdit,
         {rows.filter(([, key]) => L[key]).map(([label, key]) => <div className="drow" key={key}><span className="k">{t(label)}</span><span className="v">{L[key]}</span></div>)}
         {unlocked && note && <><div className={`vline ${note.c === 'ok' ? 'ok' : 'chk'}`}><span className="vi">{note.c === 'ok' ? '✓' : '!'}</span><span><b>{t(note.c === 'ok' ? 'vok' : 'vcheck')}</b>{note.cn?.[lang] ? ` — ${note.cn[lang]}` : ''}</span></div>{note.f?.[lang] && <div className="note"><b>{t('fit')}</b>{note.f[lang]}</div>}</>}
       </div>}
-      <div className="actions"><button className="btn" aria-expanded={expanded} aria-label={`${t(expanded ? 'less' : 'more')}: ${x.n}`} onClick={onToggle}>{t(expanded ? 'less' : 'more')}</button>{editing && <button className="btn warn" aria-label={`${t('edit')}: ${x.n}`} onClick={onEdit}>{t('edit')}</button>}{expanded && webUrl(x.u) && <a className="btn primary" aria-label={`${t('site')}: ${x.n}`} href={webUrl(x.u)} target="_blank" rel="noopener noreferrer">{t('site')}</a>}</div>
-      {isGroupEvent(x) && <TeamFinder eventId={x.id} t={t} available={teamAvailable} />}
+      <div className="actions"><button className="btn" aria-expanded={expanded} aria-label={`${t(expanded ? 'less' : 'more')}: ${x.n}`} onClick={onToggle}>{t(expanded ? 'less' : 'more')}</button>{editing && <button className="btn warn" aria-label={`${t('edit')}: ${x.n}`} onClick={onEdit}>{t('edit')}</button>}{expanded && webUrl(x.u) && <a className="btn primary" aria-label={`${t('site')}: ${x.n}`} href={webUrl(x.u)} target="_blank" rel="noopener noreferrer">{t('site')}</a>}{isGroupEvent(x) && <TeamFinder eventId={x.id} t={t} available={teamAvailable} />}</div>
     </div>
   </article>
 }
