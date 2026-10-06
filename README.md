@@ -1,5 +1,7 @@
 # GC Education catalog
 
+For product behavior, data rules, and contributor handoff, read [PRODUCT_SPEC.md](PRODUCT_SPEC.md).
+
 React/Vite catalog for Vercel. The site shows a bundled copy of all 237 entries until Supabase is connected. After connection, edits save to Supabase and appear for all visitors.
 
 ## Local

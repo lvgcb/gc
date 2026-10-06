@@ -1,5 +1,7 @@
 # Product
 
+Detailed project handoff: [PRODUCT_SPEC.md](PRODUCT_SPEC.md).
+
 ## Register
 
 product
