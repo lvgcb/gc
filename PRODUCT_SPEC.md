@@ -6,7 +6,7 @@
 
 GC Education helps students in grades 9–12 in Kazakhstan discover competitions, hackathons, research programs, scholarships, and other opportunities. A student should be able to find a relevant entry, understand its eligibility and timing, and reach the organizer's official website. The catalog does not submit applications or guarantee admission, funding, or eligibility.
 
-The live site is [gc-sand.vercel.app](https://gc-sand.vercel.app/); the source repository is [lvgcb/gc](https://github.com/lvgcb/gc). This is a single-page React/Vite site on Vercel. Supabase provides live data, editor authentication, and public team requests. There is no separately deployed custom backend.
+The live site is [gc-sand.vercel.app](https://gc-sand.vercel.app/); the source repository is [lvgcb/gc](https://github.com/lvgcb/gc). This is a single-page React/Vite site on Vercel, styled with Tailwind CSS v4 through its Vite plugin. Supabase provides live data, editor authentication, and public team requests. There is no separately deployed custom backend.
 
 | User | Main task | Access |
 | --- | --- | --- |
@@ -113,7 +113,7 @@ The prior request to add visual detail to the hero had **not been implemented** 
 | File | Responsibility |
 | --- | --- |
 | `src/App.jsx` | Page UI, loading, search/filter/sort, cards, team form, editor |
-| `src/style.css` | Light-theme tokens, layout, hero, cards, drawer, modals, responsive rules |
+| `src/style.css` | Tailwind import, light-theme tokens, and a small set of component rules |
 | `src/translations.json` | UI text and subject-area labels |
 | `src/groupEvents.js` | Required-team classification |
 | `src/supabase.js` | Browser Supabase client configuration |
