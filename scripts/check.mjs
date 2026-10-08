@@ -7,9 +7,10 @@ import { normalizeTelegramUsername } from '../src/telegram.js'
 assert.equal(isGroupEvent({ id: 'C012' }), true)
 assert.equal(isGroupEvent({ id: 'C152' }), true)
 for (const id of ['C023', 'C038', 'C132']) assert.equal(isGroupEvent({ id }), true)
-assert.equal(isGroupEvent({ id: 'C011' }), false) // solo entry is allowed
-assert.equal(isGroupEvent({ id: 'C133' }), false) // solo entry is allowed
-assert.equal(isGroupEvent({ id: 'C154' }), false) // one-person team is allowed
+for (const id of ['C011', 'C014', 'C099', 'C133', 'C149', 'C150', 'C151', 'C153', 'C154']) {
+  assert.equal(isGroupEvent({ id }), true)
+}
+assert.equal(isGroupEvent({ id: 'C098' }), false) // national delegation, individual competition
 assert.equal(isGroupEvent({ id: 'C012', groupEvent: false }), false)
 assert.equal(normalizeTelegramUsername(' @Alice_2026 '), 'alice_2026')
 assert.equal(normalizeTelegramUsername('a!b'), null)

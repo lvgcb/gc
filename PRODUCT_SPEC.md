@@ -44,8 +44,8 @@ The checked-in SQL allowlists `akimzhansagatzhan@gmail.com`. Never commit accoun
 
 ### Group Events and Find a team
 
-- A Group Event requires a student team or school group. An event that accepts solo entries stays out, even if it also allows teams. A national delegation with individual scoring does not automatically count. Check organizer participation rules when uncertain.
-- Classification lives in [src/groupEvents.js](src/groupEvents.js) as stable IDs; an item-level `groupEvent` boolean overrides the ID list. At this document's date, 40 of 243 CSV entries are classified. This category is derived in the frontend, not stored as a separate field in the present CSV.
+- A Group Event has a student team entry or requires a school group. Solo participation can also be available. National delegations in individually scored olympiads, group classes, and event directories do not count. Check organizer participation rules when uncertain.
+- Classification lives in [src/groupEvents.js](src/groupEvents.js) as stable IDs; an item-level `groupEvent` boolean overrides the ID list. At this document's date, 66 of 243 live catalog entries are classified. This category is derived in the frontend, not stored as a separate field in the present CSV.
 - The filter drawer includes Group Events. An expanded group card shows a badge, and every group card has a **Find a team** button.
 - The button reveals a Telegram username form and the 50 latest usernames for that event. Users may enter `@handle` or `handle`; the app stores lowercase without `@`. Valid handles have 5–32 ASCII letters, digits, or underscores. Duplicate username/event pairs are ignored.
 - Usernames are public and link to `https://t.me/<handle>`. There is no Telegram ownership check, moderation, removal UI, expiry, or private messaging. The form is unavailable when the live catalog is unavailable.
@@ -115,7 +115,7 @@ The prior request to add visual detail to the hero had **not been implemented** 
 | `src/App.jsx` | Page UI, loading, search/filter/sort, cards, team form, editor |
 | `src/style.css` | Tailwind import, light-theme tokens, and a small set of component rules |
 | `src/translations.json` | UI text and subject-area labels |
-| `src/groupEvents.js` | Required-team classification |
+| `src/groupEvents.js` | Student-team classification |
 | `src/supabase.js` | Browser Supabase client configuration |
 | `src/telegram.js` | Username validation |
 | `src/crypto.js` | Browser-side note encryption/decryption |
